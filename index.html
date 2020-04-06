@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="description" content="Informasi Covid-19 realtime dengan API Kawal Corona">
+    <meta name="keywords" content="Covid19, Informasi, Kawal Corona">
+    <meta name="author" content="Faruq Aziz">
+    <title>Covid-19</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.15.0/css/mdb.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .map-container {
+            overflow: hidden;
+            padding-bottom: 56.25%;
+            position: relative;
+            height: 0;
+        }
+
+        .map-container iframe {
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+
+        .my-custom-scrollbar {
+            position: relative;
+            height: 500px;
+            overflow: auto;
+        }
+
+        .table-wrapper-scroll-y {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div id="home">
+            <!--Main Navigation-->
+            <header class="pb-2">
+
+                <nav class="navbar fixed-top navbar-expand-lg navbar-dark green scrolling-navbar">
+                    <a class="navbar-brand" href="#"><strong>Si Covid Nakal</strong></a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#global">Global</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#provinsi">Indonesia</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://www.covid19.go.id" target="_blank">Covid-19</a>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav nav-flex-icons">
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://github.com/faruq1997" target="_blank"><i
+                                        class="fab fa-github"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+            </header>
+            <!--Main Navigation-->
+            <div class="jumbotron">
+                <h2 class="display-4">Corona Virus Disease 2019</h2>
+                <p class="lead">COVID-19 adalah penyakit menular yang disebabkan oleh jenis coronavirus yang baru
+                    ditemukan. Ini merupakan virus baru dan penyakit yang sebelumnya tidak dikenal sebelum terjadi wabah
+                    di Wuhan, Tiongkok, bulan Desember 2019.</p>
+                <hr class="my-4">
+                <p>Coronavirus adalah suatu kelompok virus yang dapat menyebabkan penyakit pada hewan atau manusia.
+                    Beberapa jenis coronavirus diketahui menyebabkan infeksi saluran nafas pada manusia mulai dari batuk
+                    pilek hingga yang lebih serius seperti Middle East Respiratory Syndrome (MERS) dan Severe Acute
+                    Respiratory Syndrome (SARS). Coronavirus jenis baru yang ditemukan menyebabkan penyakit COVID-19.
+                </p>
+                <a class="btn btn-success btn-lg"
+                    href="https://www.who.int/indonesia/news/novel-coronavirus/qa-for-public" target="_blank"
+                    role="button">Pelajari
+                    Lebih Lanjut</a>
+            </div>
+
+            <!-- Tagline -->
+            <section class="py-2 mx-5 text-center">
+                <h1 class="h1-responsive">Mari Kawal Corona Bersama</h1>
+                <h4 class="h4-responsive">Tingkatkan Kebersihan dan Jaga Kesehatan</h4>
+                <hr>
+            </section>
+
+            <section class="mx-2 hoverable">
+                <h2 id="global" class="h2-responsive text-justify mx-4 pt-3"><i class="fas fa-globe mx-2"></i>Global
+                </h2>
+                <!-- Card deck -->
+                <div class="card-deck mb-3">
+                    <!-- Card -->
+                    <div class="card bg-warning img-card box-primary-shadow">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="text-white">
+                                    <p class="text-white mb-0">TOTAL POSITIF</p>
+                                    <h2 v-if="global.positif" class="mb-0 number-font">
+                                        {{global.positif.toLocaleString('id')}}</h2>
+                                    <p class="text-white mb-0">ORANG</p>
+                                </div>
+                                <div class="ml-auto"> <img src="https://kawalcorona.com/uploads/sad-u6e.png" width="50"
+                                        height="50" alt="Positif"> </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card -->
+                    <!-- Card -->
+                    <div class="card bg-success img-card box-secondary-shadow">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="text-white">
+                                    <p class="text-white mb-0">TOTAL SEMBUH</p>
+                                    <h2 v-if="global.sembuh" class="mb-0 number-font">
+                                        {{global.sembuh.toLocaleString('id')}}</h2>
+                                    <p class="text-white mb-0">ORANG</p>
+                                </div>
+                                <div class="ml-auto"> <img src="https://kawalcorona.com/uploads/happy-ipM.png"
+                                        width="50" height="50" alt="Positif"> </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card -->
+                    <!-- Card -->
+                    <div class="card bg-danger img-card box-secondary-shadow">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="text-white">
+                                    <p class="text-white mb-0">TOTAL MENINGGAL</p>
+                                    <h2 v-if="global.meninggal" class="mb-0 number-font">
+                                        {{global.meninggal.toLocaleString('id')}}</h2>
+                                    <p class="text-white mb-0">ORANG</p>
+                                </div>
+                                <div class="ml-auto"> <img src="https://kawalcorona.com/uploads/emoji-LWx.png"
+                                        width="50" height="50" alt="Positif"> </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card -->
+                </div>
+                <!-- Card deck -->
+
+                <!--Google maps-->
+                <div id="mapid" class="z-depth-1-half map-container" style="height: 300px;">
+                </div>
+                <!--Google Maps-->
+                <hr>
+
+                <h2 id="provinsi" class="h2-responsive text-justify mx-4 pt-3"><i
+                        class="fas fa-globe-asia mx-2"></i>Provinsi
+                </h2>
+
+                <!-- tabel -->
+                <div id="global-detail" class="table-wrapper-scroll-y my-custom-scrollbar">
+                    <table id="iniTabel" class="table table-bordered table-striped mb-0 text-center">
+                        <thead class="green dark white-text">
+                            <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">Provinsi</th>
+                                <th scope="col">Positif</th>
+                                <th scope="col">Meninggal</th>
+                                <th scope="col">Sembuh</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr v-for="(prop,i) in propinsi" :key="i">
+                                <td>{{i+1}}</td>
+                                <td>{{prop.attributes.Provinsi}}</td>
+                                <td>{{prop.attributes.Kasus_Meni.toLocaleString('id')}}</td>
+                                <td>{{prop.attributes.Kasus_Semb.toLocaleString('id')}}</td>
+                                <td>{{prop.attributes.Kasus_Posi.toLocaleString('id')}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <!-- tabel -->
+            </section>
+            <!-- Tagline -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="page-footer font-small teal pt-4 green">
+
+        <!-- Footer Text -->
+        <div class="container-fluid text-center text-md-left black-text">
+
+            <!-- Grid row -->
+            <div class="row">
+
+                <!-- Grid column -->
+                <div class="col-md-6 mt-md-0 mt-3">
+
+                    <!-- Content -->
+                    <h5 class="text-uppercase font-weight-bold">#DiRumahAja</h5>
+                    <p>Ayo kita dukung pemerintah dengan #dirumahaja</p>
+
+                </div>
+                <!-- Grid column -->
+
+                <hr class="clearfix w-100 d-md-none pb-3">
+
+                <!-- Grid column -->
+                <div class="col-md-6 mb-md-0 mb-3">
+
+                    <!-- Content -->
+                    <h5 class="text-uppercase font-weight-bold">Kawal Corona</h5>
+                    <p>Data ini diambil secara realtime dari <a href="https://kawalcorona.com/">kawalcorona.com</a> </p>
+
+                </div>
+                <!-- Grid column -->
+
+            </div>
+            <!-- Grid row -->
+
+        </div>
+        <!-- Footer Text -->
+
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3">© 2020 Copyright:
+            <a href="https://faruq1997.github.io/"> Mr. Uwuuu</a>
+        </div>
+        <!-- Copyright -->
+
+    </footer>
+    <!-- Footer -->
+    <!-- JQuery -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js">
+    </script>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.15.0/js/mdb.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        const coronaVm = new Vue({
+            el: '#app',
+            data: {
+                display: 'redbox',
+                global: {
+                    positif: 0,
+                    sembuh: 0,
+                    meninggal: 0,
+                },
+                indonesia: {
+                    positif: 0,
+                    sembuh: 0,
+                    meninggal: 0
+                },
+                propinsi: null,
+                dataGlobal: null,
+                propinsiku: 'Jawa Barat',
+                nama_propinsi: {},
+                dataPropinsiku: {
+                    Kasus_Posi: 0,
+                    Kasus_Semb: 0,
+                    Kasus_Meni: 0
+                },
+                map: null,
+                tileLayer: null,
+                layers: [],
+                perkasus: {}
+            },
+            mounted() {
+                this.initMap();
+                this.initLayers();
+            },
+            created() {
+                this.onload()
+                setInterval(() => {
+                    this.onload()
+                }, 30 * 60 * 1000);
+                setTimeout(() => {
+                    this.change(this.propinsiku)
+                }, 2000);
+            },
+            methods: {
+                initMap() {
+                    let lat = '-2.548926'
+                    let lng = '118.0148634'
+                    this.map = L.map('mapid').setView([lat, lng], 4);
+                    const that = this
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function (position) {
+                            lat = position.coords.latitude
+                            lng = position.coords.longitude
+                            var myIcon = L.icon({
+                                iconUrl: 'https://image.flaticon.com/icons/svg/2617/2617861.svg',
+                                iconSize: [38, 95],
+                                iconAnchor: [22, 94],
+                                popupAnchor: [-3, -76]
+                            });
+                            var marker = L.marker([lat, lng], {
+                                icon: myIcon
+                            }).addTo(that.map);
+                            marker.bindPopup("<b>Halo Gayn!</b><br>Ini posisi kamu").openPopup()
+                            marker.on('mouseover', function (e) {
+                                this.openPopup();
+                            });
+                            marker.on('mouseout', function (e) {
+                                this.closePopup();
+                            });
+                            // that.map.flyTo([lat, lng], 12)
+                        });
+                    } else {
+                        alert("Geolocation is not supported by this browser.");
+                    }
+                },
+                initLayers() {
+                    this.tileLayer = L.tileLayer(
+                        'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                            maxZoom: 18,
+                            id: 'mapbox/streets-v11',
+                            tileSize: 512,
+                            zoomOffset: -1,
+                            accessToken: 'pk.eyJ1IjoidmFpbG80MTM1IiwiYSI6ImNrODc2MXlsaDBsa2Uzbm1ybWM0eDNrNm8ifQ.iK8rImtxxad-agBgbpYtyA'
+                        })
+                    this.tileLayer.addTo(this.map);
+                },
+                addToMap() {
+                    const that = this
+                    this.dataGlobal.forEach(function (el) {
+                        var marker = L.marker([el.attributes.Lat, el.attributes.Long_]).addTo(that.map);
+                        marker.bindPopup("<b>" + el.attributes.Country_Region +
+                            "</b><br>Positif : <b>" +
+                            el.attributes.Confirmed +
+                            "</b><br>Meninggal : <b>" +
+                            el.attributes.Deaths +
+                            "</b><br>Sembuh : <b>" +
+                            el.attributes.Recovered +
+                            "</b><br>")
+                        marker.bindTooltip("<b>" + el.attributes.Country_Region + "</b>").openTooltip();
+                        marker.on('mouseover', function (e) {
+                            this.openPopup();
+                        });
+                        marker.on('mouseout', function (e) {
+                            this.closePopup();
+                            this.openTooltip();
+                        });
+                    })
+                },
+                toDate(dateUnix) {
+                    return new Date(dateUnix * 1000)
+                },
+                onload() {
+                    this.getIndonesia()
+                    this.getPropinsi()
+                    this.getGlobal()
+                    this.getGlobalPositif()
+                    this.getGlobalSembuh()
+                    this.getGlobalMeninggal()
+                    this.getPerKasus()
+                },
+                getIndonesia() {
+                    axios.get('https://api.kawalcorona.com/indonesia/')
+                        .then((res) => {
+                            // console.log('Indonesia axios', res)
+                            this.indonesia = res.data[0]
+                            console.log(this.indonesia)
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        })
+                },
+                getPropinsi() {
+                    axios.get('https://api.kawalcorona.com/indonesia/provinsi/')
+                        .then((res) => {
+                            console.log('Propinsi', res)
+                            this.propinsi = res.data
+                            let i = 1
+                            let total = this.propinsi.length
+                            let object = null
+                            this.propinsi.forEach(element => {
+                                this.nama_propinsi[element.attributes.Provinsi] = null
+                            })
+                            console.log(this.nama_propinsi)
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        })
+                },
+                getGlobal() {
+                    axios.get('https://api.kawalcorona.com/')
+                        .then((res) => {
+                            console.log('Global', res)
+                            this.dataGlobal = res.data
+                            this.addToMap()
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        })
+                },
+                getGlobalPositif() {
+                    axios.get('https://api.kawalcorona.com/positif/')
+                        .then((res) => {
+                            console.log('Global Positif', res)
+                            this.global.positif = res.data.value
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        })
+                },
+                getGlobalSembuh() {
+                    axios.get('https://api.kawalcorona.com/sembuh/')
+                        .then((res) => {
+                            console.log('Global Sembuh', res)
+                            this.global.sembuh = res.data.value
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        })
+                },
+                getGlobalMeninggal() {
+                    axios.get('https://api.kawalcorona.com/meninggal/')
+                        .then((res) => {
+                            console.log('Global Meninggal', res)
+                            this.global.meninggal = res.data.value
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        })
+                },
+                getPerKasus() {
+                    // https://indonesia-covid-19.mathdro.id/api/kasus
+                    axios.get('https://indonesia-covid-19.mathdro.id/api/kasus/')
+                        .then((res) => {
+                            console.log('Indonesia Perkasus', res)
+                            this.perkasus = res.data.data.nodes
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        })
+                },
+                change(val) {
+                    this.propinsiku = val
+                    var propinsiFiltered = this.propinsi.filter(function (el) {
+                        return el.attributes.Provinsi === val;
+                    });
+                    this.dataPropinsiku = propinsiFiltered[0].attributes
+                    console.log(this.dataPropinsiku)
+                }
+            }
+        });
+        // var mymap = L.map('mapid').setView([51.505, -0.09], 13)
+        // L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+        //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        //     maxZoom: 18,
+        //     id: 'mapbox/streets-v11',
+        //     tileSize: 512,
+        //     zoomOffset: -1,
+        //     accessToken: 'pk.eyJ1IjoidmFpbG80MTM1IiwiYSI6ImNrODc2MXlsaDBsa2Uzbm1ybWM0eDNrNm8ifQ.iK8rImtxxad-agBgbpYtyA'
+        // }).addTo(mymap);
+
+        // //add marker to map
+        // coronaVm.$data.dataGlobal.forEach(function(el){
+        //   console.log(el)
+        // })
+    </script>
+</body>
+
+</html>
